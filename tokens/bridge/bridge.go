@@ -9,6 +9,7 @@ import (
 	"github.com/anyswap/CrossChain-Bridge/log"
 	"github.com/anyswap/CrossChain-Bridge/params"
 	"github.com/anyswap/CrossChain-Bridge/tokens"
+	"github.com/anyswap/CrossChain-Bridge/tokens/beam"
 	"github.com/anyswap/CrossChain-Bridge/tokens/block"
 	"github.com/anyswap/CrossChain-Bridge/tokens/btc"
 	"github.com/anyswap/CrossChain-Bridge/tokens/colx"
@@ -26,6 +27,8 @@ import (
 func NewCrossChainBridge(id string, isSrc bool) tokens.CrossChainBridge {
 	blockChainIden := strings.ToUpper(id)
 	switch {
+	case strings.HasPrefix(blockChainIden, "BEAM"):
+		return beam.NewCrossChainBridge(isSrc)
 	case strings.HasPrefix(blockChainIden, "BITCOIN"):
 		return btc.NewCrossChainBridge(isSrc)
 	case strings.HasPrefix(blockChainIden, "LITECOIN"):

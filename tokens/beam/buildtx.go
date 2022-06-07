@@ -267,50 +267,52 @@ func (b *Bridge) getDefaultGasLimit(pairID string) (gasLimit uint64) {
 }
 
 func (b *Bridge) getGasPrice(args *tokens.BuildTxArgs) (price *big.Int, err error) {
-	fixedGasPrice := b.ChainConfig.GetFixedGasPrice()
-	if fixedGasPrice != nil {
-		price = fixedGasPrice
-		if args.GetReplaceNum() == 0 {
-			return price, nil
-		}
-	} else {
-		for i := 0; i < retryRPCCount; i++ {
-			price, err = b.SuggestPrice()
-			if err == nil {
-				break
-			}
-			time.Sleep(retryRPCInterval)
-		}
-		if err != nil {
-			return nil, err
-		}
+	return new(big.Int), nil
+	// TODO roman.strilets disable it
+	// fixedGasPrice := b.ChainConfig.GetFixedGasPrice()
+	// if fixedGasPrice != nil {
+	// 	price = fixedGasPrice
+	// 	if args.GetReplaceNum() == 0 {
+	// 		return price, nil
+	// 	}
+	// } else {
+	// 	for i := 0; i < retryRPCCount; i++ {
+	// 		price, err = b.SuggestPrice()
+	// 		if err == nil {
+	// 			break
+	// 		}
+	// 		time.Sleep(retryRPCInterval)
+	// 	}
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-		minGasPrice := b.ChainConfig.GetMinGasPrice()
-		if minGasPrice != nil && price.Cmp(minGasPrice) < 0 {
-			price = minGasPrice
-		}
-	}
+	// 	minGasPrice := b.ChainConfig.GetMinGasPrice()
+	// 	if minGasPrice != nil && price.Cmp(minGasPrice) < 0 {
+	// 		price = minGasPrice
+	// 	}
+	// }
 
-	if args != nil && args.SwapType != tokens.NoSwapType {
-		price, err = b.adjustSwapGasPrice(args, price)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if baseGasPrice != nil {
-		maxGasPrice := new(big.Int).Mul(baseGasPrice, big.NewInt(10))
-		if price.Cmp(maxGasPrice) > 0 {
-			log.Info("gas price exceeds upper bound", "baseGasPrice", baseGasPrice, "maxGasPrice", maxGasPrice, "price", price)
-			price = maxGasPrice
-		}
-	}
+	// if args != nil && args.SwapType != tokens.NoSwapType {
+	// 	price, err = b.adjustSwapGasPrice(args, price)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	// if baseGasPrice != nil {
+	// 	maxGasPrice := new(big.Int).Mul(baseGasPrice, big.NewInt(10))
+	// 	if price.Cmp(maxGasPrice) > 0 {
+	// 		log.Info("gas price exceeds upper bound", "baseGasPrice", baseGasPrice, "maxGasPrice", maxGasPrice, "price", price)
+	// 		price = maxGasPrice
+	// 	}
+	// }
 
-	maxGasPrice := b.ChainConfig.GetMaxGasPrice()
-	if maxGasPrice != nil && price.Cmp(maxGasPrice) > 0 {
-		return nil, fmt.Errorf("gas price %v exceeded maximum limit", price)
-	}
+	// maxGasPrice := b.ChainConfig.GetMaxGasPrice()
+	// if maxGasPrice != nil && price.Cmp(maxGasPrice) > 0 {
+	// 	return nil, fmt.Errorf("gas price %v exceeded maximum limit", price)
+	// }
 
-	return price, err
+	// return price, err
 }
 
 // args and oldGasPrice should be read only
@@ -375,25 +377,27 @@ func (b *Bridge) getAccountNonce(args *tokens.BuildTxArgs) (nonceptr *uint64, er
 }
 
 func (b *Bridge) checkBalance(token, account string, amount *big.Int) (err error) {
-	var balance *big.Int
-	for i := 0; i < retryRPCCount; i++ {
-		if token != "" {
-			balance, err = b.GetErc20Balance(token, account)
-		} else {
-			balance, err = b.GetBalance(account)
-		}
-		if err == nil {
-			break
-		}
-		time.Sleep(retryRPCInterval)
-	}
-	if err == nil && balance.Cmp(amount) < 0 {
-		return fmt.Errorf("not enough %v balance. %v < %v", token, balance, amount)
-	}
-	if err != nil {
-		log.Warn("get balance error", "token", token, "account", account, "err", err)
-	}
-	return err
+	return nil
+	// TODO roman.strilets disable it
+	// var balance *big.Int
+	// for i := 0; i < retryRPCCount; i++ {
+	// 	if token != "" {
+	// 		balance, err = b.GetErc20Balance(token, account)
+	// 	} else {
+	// 		balance, err = b.GetBalance(account)
+	// 	}
+	// 	if err == nil {
+	// 		break
+	// 	}
+	// 	time.Sleep(retryRPCInterval)
+	// }
+	// if err == nil && balance.Cmp(amount) < 0 {
+	// 	return fmt.Errorf("not enough %v balance. %v < %v", token, balance, amount)
+	// }
+	// if err != nil {
+	// 	log.Warn("get balance error", "token", token, "account", account, "err", err)
+	// }
+	// return err
 }
 
 func (b *Bridge) getGasTipCap(args *tokens.BuildTxArgs) (gasTipCap *big.Int, err error) {

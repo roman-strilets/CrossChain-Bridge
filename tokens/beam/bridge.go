@@ -124,15 +124,17 @@ func (b *Bridge) VerifyTokenConfig(tokenCfg *tokens.TokenConfig) (err error) {
 		return fmt.Errorf("invalid deposit address: %v", tokenCfg.DepositAddress)
 	}
 
-	err = b.verifyDecimals(tokenCfg)
-	if err != nil {
-		return err
-	}
+	// TODO roman.strilets disable it
+	// err = b.verifyDecimals(tokenCfg)
+	// if err != nil {
+	// 	return err
+	// }
 
-	err = b.verifyContractAddress(tokenCfg)
-	if err != nil {
-		return err
-	}
+	// TODO roman.strilets diasble it
+	// err = b.verifyContractAddress(tokenCfg)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

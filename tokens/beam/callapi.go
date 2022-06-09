@@ -26,12 +26,17 @@ var (
 	wrapRPCQueryError = tokens.WrapRPCQueryError
 )
 
+type RPCWalletStatus struct {
+	Height *uint64 `json:"current_height"`
+}
+
 // GetLatestBlockNumberOf call eth_blockNumber
 func (b *Bridge) GetLatestBlockNumberOf(url string) (latest uint64, err error) {
-	var result string
-	err = client.RPCPost(&result, url, "eth_blockNumber")
+	var result *RPCWalletStatus
+	err = client.RPCPost(&result, url, "wallet_status")
 	if err == nil {
-		return common.GetUint64FromStr(result)
+		//return common.GetUint64FromStr(result)
+		return *result.Height, nil
 	}
 	return 0, wrapRPCQueryError(err, "eth_blockNumber")
 }
@@ -51,11 +56,12 @@ func getMaxLatestBlockNumber(urls []string) (maxHeight uint64, err error) {
 	if len(urls) == 0 {
 		return 0, errEmptyURLs
 	}
-	var result string
+	var result *RPCWalletStatus
 	for _, url := range urls {
-		err = client.RPCPost(&result, url, "eth_blockNumber")
+		err = client.RPCPost(&result, url, "wallet_status")
 		if err == nil {
-			height, _ := common.GetUint64FromStr(result)
+			//height, _ := common.GetUint64FromStr(result.current_height)
+			height := *result.Height
 			if height > maxHeight {
 				maxHeight = height
 			}

@@ -431,17 +431,19 @@ func sendRawTransaction(wg *sync.WaitGroup, hexData string, url string, ch chan<
 // ChainID call eth_chainId
 // Notice: eth_chainId return 0x0 for mainnet which is wrong (use net_version instead)
 func (b *Bridge) ChainID() (*big.Int, error) {
-	gateway := b.GatewayConfig
-	var result hexutil.Big
-	var err error
-	for _, apiAddress := range gateway.APIAddress {
-		url := apiAddress
-		err = client.RPCPost(&result, url, "eth_chainId")
-		if err == nil {
-			return result.ToInt(), nil
-		}
-	}
-	return nil, wrapRPCQueryError(err, "eth_chainId")
+	return new(big.Int).SetUint64(1234), nil
+	// TODO roman.strilets disable it
+	// gateway := b.GatewayConfig
+	// var result hexutil.Big
+	// var err error
+	// for _, apiAddress := range gateway.APIAddress {
+	// 	url := apiAddress
+	// 	err = client.RPCPost(&result, url, "eth_chainId")
+	// 	if err == nil {
+	// 		return result.ToInt(), nil
+	// 	}
+	// }
+	// return nil, wrapRPCQueryError(err, "eth_chainId")
 }
 
 // NetworkID call net_version

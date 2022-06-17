@@ -1,6 +1,7 @@
 package beam
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -28,6 +29,20 @@ var (
 
 type RPCWalletStatus struct {
 	Height *uint64 `json:"current_height"`
+}
+
+type RPCParams struct {
+	File *string `json:"contract_file"`
+	Args *string `json:"args"`
+}
+
+type RPCNonce struct {
+	Nonce string `json:"nonce"`
+}
+
+type RPCOutputNonce struct {
+	Output RPCNonce `json:"output"`
+	TxId   string   `json:txid`
 }
 
 // GetLatestBlockNumberOf call eth_blockNumber
@@ -315,14 +330,36 @@ func getMaxPoolNonce(account common.Address, height string, urls []string) (maxN
 		return 0, errEmptyURLs
 	}
 	var success bool
-	var result hexutil.Uint64
+	//var result hexutil.Uint64
+	var result map[string]interface{} //RPCOutputNonce
+
+	contract_file := "./multichain_app.wasm"
+	args := "action=tx_count"
+	params := new(RPCParams)
+	params.Args = &args
+	params.File = &contract_file
 	for _, url := range urls {
-		err = client.RPCPost(&result, url, "eth_getTransactionCount", account, height)
+		//err = client.RPCPost(&result, url, "eth_getTransactionCount", account, height)
+
+		req := &client.Request{
+			Method:  "invoke_contract",
+			Params:  params,
+			Timeout: 5,
+			ID:      1,
+		}
+		err = client.RPCPostRequest(url, req, &result)
 		if err == nil {
 			success = true
-			if uint64(result) > maxNonce {
-				maxNonce = uint64(result)
-			}
+			output := result["output"].(string)
+
+			err = json.Unmarshal([]byte(output), &result)
+
+			maxNonce = uint64(result["nonce"].(float64))
+
+			// if uint64(result) > maxNonce {
+			// 	maxNonce = uint64(result)
+			// }
+			//log.Info(*result.Output.Nonce)
 		}
 	}
 	if success {
